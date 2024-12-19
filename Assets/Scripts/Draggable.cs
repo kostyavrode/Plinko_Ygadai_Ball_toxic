@@ -14,43 +14,15 @@ public class Draggable : MonoBehaviour
 
     public Cell targetCell;
 
+    private Vector2 startPosition;
+
+    private Tween currentTween;
+
     void Start()
     {
         mainCamera = Camera.main;  // Получаем основную камеру
         rb = GetComponent<Rigidbody2D>();  // Получаем Rigidbody2D (если есть)
         collider2D = GetComponent<Collider2D>();  // Получаем Collider2D
-    }
-
-    void OnMouseDown()
-    {
-        
-        // Проверка на наличие Collider2D для перетаскивания
-        if (collider2D == null)
-        {
-            Debug.LogWarning("Collider2D не найден. Добавьте Collider2D на объект.");
-            return;
-        }
-
-        if (isDragging) return;
-
-        isDragging = true;
-
-        // Сохраняем смещение между позицией мыши и объектом
-        offset = transform.position - GetMouseWorldPosition();
-    }
-
-    void OnMouseDrag()
-    {
-        if (!isDragging) return;
-
-        // Перемещаем объект в позицию мыши, с учетом смещения
-        transform.position = GetMouseWorldPosition() + offset;
-    }
-
-    void OnMouseUp()
-    {
-        isDragging = false;
-        CheckIfInCell();
     }
     public void Blink()
     {
@@ -60,24 +32,19 @@ public class Draggable : MonoBehaviour
     {
         transform.DOMove(pos, 1.5f);
     }
-    private Vector3 GetMouseWorldPosition()
-    {
-        // Получаем позицию мыши на экране и преобразуем её в мировые координаты
-        Vector3 mousePosition = Input.mousePosition;
-        mousePosition.z = 10f; // Расстояние от камеры
-        return mainCamera.ScreenToWorldPoint(mousePosition);
-    }
 
     // Для мобильных устройств (касание)
     void Update()
     {
-        CheckIfInCell();
+        
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
 
             if (touch.phase == TouchPhase.Began)
             {
+                currentTween.Kill();
+                startPosition= transform.position;
                 // Проверка касания для UI элементов или коллайдеров
                 if (collider2D != null && collider2D.OverlapPoint(mainCamera.ScreenToWorldPoint(touch.position)))
                 {
@@ -94,20 +61,28 @@ public class Draggable : MonoBehaviour
             if (touch.phase == TouchPhase.Ended)
             {
                 isDragging = false;
+                if (!CheckIfInCell())
+                {
+                    currentTween = transform.DOMove(startPosition, 1).SetEase(Ease.InOutQuad).OnComplete(() =>
+                    {
+                        currentTween = null;
+                    });
+                    
+                }
             }
         }
     }
-    void CheckIfInCell()
+    bool CheckIfInCell()
     {
         if (targetCell != null && collider2D.bounds.Intersects(targetCell.GetComponent<Collider2D>().bounds))
         {
             isInCell = true;
-            Debug.Log("CELL");
+            return true;
         }
         else
         {
             isInCell = false;
-            Debug.Log("NE V CELL");
+            return false;
         }
     }
     void OnTriggerEnter2D(Collider2D other)
