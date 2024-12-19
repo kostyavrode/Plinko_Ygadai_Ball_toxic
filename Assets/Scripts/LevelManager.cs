@@ -9,23 +9,28 @@ public class LevelManager : MonoBehaviour
     public LevelData[] levels; // Список всех уровней
     public Transform ballParent; // Родительский объект для шариков
     public Transform cellParent; // Родительский объект для ячеек
-    private int currentLevelIndex;
+    public int currentLevelIndex;
 
     private bool isCanCheckBallsInCells;
 
     void Start()
     {
-        LoadLevel(0);
+        //LoadLevel(0);
     }
     void Update()
     {
         if (AreAllBallsInCells() && isCanCheckBallsInCells)
         {
-            Debug.Log("Все шарики в нужных ячейках!");
+            
+            UITemplate.instance.EndGame(true);
+            isCanCheckBallsInCells = false;
         }
         
     }
-
+    public void SetCurrentLevel(int level)
+    {
+        currentLevelIndex = level;
+    }
     public void LoadLevel(int levelIndex)
     {
         ClearLevel();
@@ -34,8 +39,8 @@ public class LevelManager : MonoBehaviour
         LevelData level = levels[levelIndex];
 
         // Создаем ячейки
+        Debug.Log(level.targetPositions.Length + " targetPositions");
         for (int i = 0; i < level.targetPositions.Length; i++) 
-            //foreach (var pos in level.targetPositions)
             {
             Vector2 pos = level.targetPositions[i];
                 GameObject cell = Instantiate(level.cellPrefab, pos, Quaternion.identity, cellParent);
@@ -44,7 +49,6 @@ public class LevelManager : MonoBehaviour
 
             // Создаем шарики
             for (int i = 0; i < level.targetPositions.Length; i++)
-            //foreach (var pos in level.ballPositions)
             {
                 Vector2 pos = level.targetPositions[i];
                 GameObject newball = Instantiate(level.ballPrefab, pos, Quaternion.identity, ballParent);
@@ -55,13 +59,6 @@ public class LevelManager : MonoBehaviour
             //BlinkBalls();
             Invoke("MoveBallsToStartPosition", 3);
         }
-    private void BlinkBalls()
-    {
-        for (int i = 0; i < levels[currentLevelIndex].ballPositions.Length; i++)
-        {
-            balls[i].GetComponent<Draggable>().Blink();
-        }
-    }
     private void MoveBallsToStartPosition()
     {
         for (int i=0; i < levels[currentLevelIndex].ballPositions.Length;i++)
@@ -70,7 +67,7 @@ public class LevelManager : MonoBehaviour
         }
         StartCoroutine(WaitForGameStart());
     }
-    private void ClearLevel()
+    public void ClearLevel()
     {
         foreach (Transform child in ballParent)
         {

@@ -102,11 +102,12 @@ public class Draggable : MonoBehaviour
         if (targetCell != null && collider2D.bounds.Intersects(targetCell.GetComponent<Collider2D>().bounds))
         {
             isInCell = true;
-
+            Debug.Log("CELL");
         }
         else
         {
             isInCell = false;
+            Debug.Log("NE V CELL");
         }
     }
     void OnTriggerEnter2D(Collider2D other)

@@ -7,6 +7,9 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
+
+    public LevelManager levelManager;
+
     
     public GameState gameState;
     public bool increaseTimeScale;
@@ -78,7 +81,7 @@ public class GameManager : MonoBehaviour
     }
     public void StartGame()
     {
-
+        levelManager.LoadLevel(levelManager.currentLevelIndex);
     }
 
     public void EndGame()

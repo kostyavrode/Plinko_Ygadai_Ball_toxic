@@ -7,7 +7,7 @@ public class Player : MonoBehaviour
     public static Player instance;
     private int score;
 
-    private void Awake()
+    private void Start()
     {
         instance = this;
         UITemplate.instance.ShowMoney(GetPlayerMoney().ToString());
