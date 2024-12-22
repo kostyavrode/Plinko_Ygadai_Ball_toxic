@@ -8,6 +8,8 @@ public class Draggable : MonoBehaviour
     private Rigidbody2D rb;
     private Collider2D collider2D;
 
+    public Sprite[] sprites;
+
     public float timeForMoving=1.5f;
 
     public bool isInCell = false;
@@ -25,7 +27,7 @@ public class Draggable : MonoBehaviour
         mainCamera = Camera.main;  // Получаем основную камеру
         rb = GetComponent<Rigidbody2D>();  // Получаем Rigidbody2D (если есть)
         collider2D = GetComponent<Collider2D>();  // Получаем Collider2D
-        
+        GetComponent<SpriteRenderer>().sprite= sprites[Random.Range(0,sprites.Length)];
     }
     public void Blink()
     {
@@ -73,6 +75,11 @@ public class Draggable : MonoBehaviour
                             currentTween = null;
                         });
 
+                    }
+                    else
+                    {
+                        isCanDrag = false;
+                        transform.DOMove(targetCell.transform.position, 0.3f);
                     }
                 }
             }

@@ -99,6 +99,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c530647cd81e58458bc1bcf741065af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sprites:
+  - {fileID: 21300000, guid: 5a9516a71f3c21a45b495752b8526fc2, type: 3}
+  - {fileID: 21300000, guid: 85ae6db94a977c54db8d83de47ef5b06, type: 3}
+  - {fileID: 21300000, guid: 4272e3729e9cdca41b6afda1ab348476, type: 3}
+  - {fileID: 21300000, guid: 8c9c5f9e9e8f4354ebfff29570d5bbc0, type: 3}
   timeForMoving: 0
   isInCell: 0
   targetCell: {fileID: 0}

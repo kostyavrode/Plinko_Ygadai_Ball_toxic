@@ -11,10 +11,13 @@ public class LevelManager : MonoBehaviour
     public Transform ballParent; // Родительский объект для шариков
     public Transform cellParent; // Родительский объект для ячеек
 
+    public int time;
     public GameObject boalsBoard;
     public Transform[] ballsBoardPositions;
     public int currentLevelIndex;
 
+    private Timer timer;
+    public float normalizedTime;
     private bool isCanCheckBallsInCells;
 
     private void Awake()
@@ -28,6 +31,7 @@ public class LevelManager : MonoBehaviour
             //cells.Add(cell);
             cell.gameObject.SetActive(false);
         }
+        timer = new Timer();
     }
 
     void Start()
@@ -43,6 +47,12 @@ public class LevelManager : MonoBehaviour
             UITemplate.instance.EndGame(true);
             isCanCheckBallsInCells = false;
         }
+        if (isCanCheckBallsInCells && GameManager.instance.gameState==GameState.PLAYING)
+        {
+            timer.UpdateTimer();
+            normalizedTime=timer.GetNormalizedTime();
+            UITemplate.instance.ShowTimer(normalizedTime);
+        }
         
     }
     public void SetCurrentLevel(int level)
@@ -54,7 +64,8 @@ public class LevelManager : MonoBehaviour
         ClearLevel();
         currentLevelIndex = levelIndex;
         boalsBoard.SetActive(true);
-
+        timer.ResetTimer();
+        timer.StartTimer();
         LevelData level = levels[levelIndex];
 
         // Создаем ячейки
@@ -78,7 +89,7 @@ public class LevelManager : MonoBehaviour
                 Vector2 pos = level.targetCell[i].transform.position;
                 GameObject newball = Instantiate(level.ballPrefab, pos, Quaternion.identity, ballParent);
                 balls.Add(newball);
-                newball.GetComponent<Draggable>().targetCell = cells[i];
+                newball.GetComponent<Draggable>().targetCell = level.targetCell[i];
             newball.GetComponent<Draggable>().Blink();
             }
             //BlinkBalls();
@@ -129,5 +140,59 @@ public class LevelManager : MonoBehaviour
     {
         yield return new WaitForSeconds(2);
         isCanCheckBallsInCells=true;
+    }
+}
+
+public class Timer
+{
+    public float timeRemaining = 30f; // Время таймера в секундах
+    public float totalTime = 30f; // Общее время таймера
+    public bool timerIsRunning = false; // Флаг, указывающий, работает ли таймер
+
+    public void UpdateTimer()
+    {
+        if (timerIsRunning)
+        {
+            if (timeRemaining > 0)
+            {
+                timeRemaining -= Time.deltaTime; // Уменьшаем оставшееся время
+            }
+            else
+            {
+                timeRemaining = 0; // Устанавливаем 0 для точности
+                timerIsRunning = false; // Останавливаем таймер
+                TimerEnded();
+            }
+        }
+    }
+
+    // Запуск таймера
+    public void StartTimer()
+    {
+        timerIsRunning = true;
+    }
+
+    // Сброс таймера
+    public void ResetTimer(float newTime = 30f)
+    {
+        totalTime = newTime; // Устанавливаем новое общее время
+        timeRemaining = newTime;
+        timerIsRunning = false;
+    }
+
+    // Возвращает значение времени в диапазоне от 1 до 0
+    public float GetNormalizedTime()
+    {
+        return Mathf.Clamp01(timeRemaining / totalTime); // Нормализуем значение
+    }
+
+    // Действие по завершении таймера
+    private void TimerEnded()
+    {
+        Debug.Log("Время истекло!");
+        if (GameManager.instance.gameState == GameState.PLAYING)
+        {
+            UITemplate.instance.EndGame(false);
+        }
     }
 }

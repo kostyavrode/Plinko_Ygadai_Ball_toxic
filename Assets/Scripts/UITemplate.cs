@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UITemplate : MonoBehaviour
 {
@@ -15,6 +16,8 @@ public class UITemplate : MonoBehaviour
     [SerializeField] private TMP_Text moneyBar;
     [SerializeField] private TMP_Text passesBar;
     [SerializeField] private TMP_Text winningsBar;
+
+    [SerializeField] private Image timeImage;
     private void Awake()
     {
         instance = this;
@@ -28,6 +31,10 @@ public class UITemplate : MonoBehaviour
     public void ShowMoney(string data)
     {
         moneyBar.text = data;
+    }
+    public void ShowTimer(float t)
+    {
+        timeImage.fillAmount = t;
     }
     public void StartGame()
     {
