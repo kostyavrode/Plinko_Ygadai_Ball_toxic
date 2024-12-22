@@ -9,6 +9,8 @@ public class LevelManager : MonoBehaviour
     public LevelData[] levels; // Список всех уровней
     public Transform ballParent; // Родительский объект для шариков
     public Transform cellParent; // Родительский объект для ячеек
+
+    public GameObject boalsBoard;
     public int currentLevelIndex;
 
     private bool isCanCheckBallsInCells;
@@ -35,17 +37,23 @@ public class LevelManager : MonoBehaviour
     {
         ClearLevel();
         currentLevelIndex = levelIndex;
+        boalsBoard.SetActive(true);
 
         LevelData level = levels[levelIndex];
 
         // Создаем ячейки
-        Debug.Log(level.targetPositions.Length + " targetPositions");
-        for (int i = 0; i < level.targetPositions.Length; i++) 
-            {
-            Vector2 pos = level.targetPositions[i];
-                GameObject cell = Instantiate(level.cellPrefab, pos, Quaternion.identity, cellParent);
-                cells.Add(cell);
-            }
+        //Debug.Log(level.targetPositions.Length + " targetPositions");
+        //for (int i = 0; i < level.targetPositions.Length; i++) 
+        //    {
+        //    Vector2 pos = level.targetPositions[i];
+        //        GameObject cell = Instantiate(level.cellPrefab, pos, Quaternion.identity, cellParent);
+        //        cells.Add(cell);
+        //    }
+        Cell[] tempCells=cellParent.GetComponentsInChildren<Cell>();
+        foreach (Cell cell in tempCells)
+        {
+            cells.Add(cell.gameObject);
+        }
 
             // Создаем шарики
             for (int i = 0; i < level.targetPositions.Length; i++)
@@ -69,6 +77,7 @@ public class LevelManager : MonoBehaviour
     }
     public void ClearLevel()
     {
+        boalsBoard.SetActive(false);
         foreach (Transform child in ballParent)
         {
             Destroy(child.gameObject);
