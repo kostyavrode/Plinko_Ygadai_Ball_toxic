@@ -6,10 +6,13 @@ public class Player : MonoBehaviour
 {
     public static Player instance;
     private int score;
-
-    private void Start()
+    private void Awake()
     {
         instance = this;
+    }
+    private void Start()
+    {
+        
         UITemplate.instance.ShowMoney(GetPlayerMoney().ToString());
     }
     public int GetPlayerMoney()

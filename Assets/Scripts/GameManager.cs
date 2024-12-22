@@ -43,9 +43,10 @@ public class GameManager : MonoBehaviour
         {
             case GameState.MENU:
                 {
-                    UITemplate.instance.ShowMoney(Player.instance.GetPlayerMoney().ToString());
+                    
                     currentTimeScale=1f;
                     Time.timeScale = 1;
+                    UITemplate.instance.ShowMoney(Player.instance.GetPlayerMoney().ToString());
                     break;
                 }
                 case GameState.PLAYING:

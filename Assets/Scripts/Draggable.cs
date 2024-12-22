@@ -18,11 +18,14 @@ public class Draggable : MonoBehaviour
 
     private Tween currentTween;
 
+    private bool isCanDrag;
+
     void Start()
     {
         mainCamera = Camera.main;  // Получаем основную камеру
         rb = GetComponent<Rigidbody2D>();  // Получаем Rigidbody2D (если есть)
         collider2D = GetComponent<Collider2D>();  // Получаем Collider2D
+        
     }
     public void Blink()
     {
@@ -30,44 +33,47 @@ public class Draggable : MonoBehaviour
     }
     public void MoveTo(Vector3 pos)
     {
-        transform.DOMove(pos, 1.5f);
+        transform.DOMove(pos, 1.5f).OnComplete(()=> { startPosition = transform.position; isCanDrag = true; });
     }
 
     // Для мобильных устройств (касание)
     void Update()
     {
-        
-        if (Input.touchCount > 0)
+        if (isCanDrag)
         {
-            Touch touch = Input.GetTouch(0);
-
-            if (touch.phase == TouchPhase.Began)
+            if (Input.touchCount > 0)
             {
-                currentTween.Kill();
-                startPosition= transform.position;
-                // Проверка касания для UI элементов или коллайдеров
-                if (collider2D != null && collider2D.OverlapPoint(mainCamera.ScreenToWorldPoint(touch.position)))
+                Touch touch = Input.GetTouch(0);
+
+                if (touch.phase == TouchPhase.Began)
                 {
-                    offset = transform.position - mainCamera.ScreenToWorldPoint(touch.position);
-                    isDragging = true;
-                }
-            }
 
-            if (touch.phase == TouchPhase.Moved && isDragging)
-            {
-                transform.position = mainCamera.ScreenToWorldPoint(touch.position) + offset;
-            }
-
-            if (touch.phase == TouchPhase.Ended)
-            {
-                isDragging = false;
-                if (!CheckIfInCell())
-                {
-                    currentTween = transform.DOMove(startPosition, 1).SetEase(Ease.InOutQuad).OnComplete(() =>
+                    currentTween.Kill();
+                    //startPosition= transform.position;
+                    // Проверка касания для UI элементов или коллайдеров
+                    if (collider2D != null && collider2D.OverlapPoint(mainCamera.ScreenToWorldPoint(touch.position)))
                     {
-                        currentTween = null;
-                    });
-                    
+                        offset = transform.position - mainCamera.ScreenToWorldPoint(touch.position);
+                        isDragging = true;
+                    }
+                }
+
+                if (touch.phase == TouchPhase.Moved && isDragging)
+                {
+                    transform.position = mainCamera.ScreenToWorldPoint(touch.position) + offset;
+                }
+
+                if (touch.phase == TouchPhase.Ended)
+                {
+                    isDragging = false;
+                    if (!CheckIfInCell())
+                    {
+                        currentTween = transform.DOMove(startPosition, 1).SetEase(Ease.InOutQuad).OnComplete(() =>
+                        {
+                            currentTween = null;
+                        });
+
+                    }
                 }
             }
         }

@@ -2,21 +2,37 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using System.Collections;
+using System.Linq;
 public class LevelManager : MonoBehaviour
 {
     public List<GameObject> balls;
-    public List<GameObject> cells;
+    public List<Cell> cells;
     public LevelData[] levels; // Список всех уровней
     public Transform ballParent; // Родительский объект для шариков
     public Transform cellParent; // Родительский объект для ячеек
 
     public GameObject boalsBoard;
+    public Transform[] ballsBoardPositions;
     public int currentLevelIndex;
 
     private bool isCanCheckBallsInCells;
 
+    private void Awake()
+    {
+        if (cells.Count <= 0)
+        {
+            cells = cellParent.GetComponentsInChildren<Cell>().ToList<Cell>();
+        }
+        foreach (Cell cell in cells)
+        {
+            //cells.Add(cell);
+            cell.gameObject.SetActive(false);
+        }
+    }
+
     void Start()
     {
+
         //LoadLevel(0);
     }
     void Update()
@@ -49,19 +65,20 @@ public class LevelManager : MonoBehaviour
         //        GameObject cell = Instantiate(level.cellPrefab, pos, Quaternion.identity, cellParent);
         //        cells.Add(cell);
         //    }
-        Cell[] tempCells=cellParent.GetComponentsInChildren<Cell>();
-        foreach (Cell cell in tempCells)
+       
+        foreach (Cell cell in cells)
         {
-            cells.Add(cell.gameObject);
+            //cells.Add(cell);
+            cell.gameObject.SetActive(true);
         }
 
             // Создаем шарики
-            for (int i = 0; i < level.targetPositions.Length; i++)
+            for (int i = 0; i < level.targetCell.Length; i++)
             {
-                Vector2 pos = level.targetPositions[i];
+                Vector2 pos = level.targetCell[i].transform.position;
                 GameObject newball = Instantiate(level.ballPrefab, pos, Quaternion.identity, ballParent);
                 balls.Add(newball);
-                newball.GetComponent<Draggable>().targetCell = cells[i].GetComponent<Cell>();
+                newball.GetComponent<Draggable>().targetCell = cells[i];
             newball.GetComponent<Draggable>().Blink();
             }
             //BlinkBalls();
@@ -71,7 +88,7 @@ public class LevelManager : MonoBehaviour
     {
         for (int i=0; i < levels[currentLevelIndex].ballPositions.Length;i++)
         {
-            balls[i].GetComponent<Draggable>().MoveTo(levels[currentLevelIndex].ballPositions[i]);
+            balls[i].GetComponent<Draggable>().MoveTo(levels[currentLevelIndex].ballPositions[i].position);
         }
         StartCoroutine(WaitForGameStart());
     }
@@ -85,7 +102,9 @@ public class LevelManager : MonoBehaviour
 
         foreach (Transform child in cellParent)
         {
-            Destroy(child.gameObject);
+
+            child.gameObject.SetActive(false);
+            //cells.Clear();
         }
     }
 
